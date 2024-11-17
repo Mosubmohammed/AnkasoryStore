@@ -10,15 +10,14 @@ def cart_summary(request):
 
 def cart_add(request):
     cart=Cart(request)
-    if request.Post.get('action') == 'post':
+    if request.POST.get('action') == 'post':
         product_id=int(request.POST.get('product_id'))
         product=get_object_or_404(Product,id=product_id)
         cart.add(product=product)
         
-        return JsonResponse({'productName':product.name})
+        return JsonResponse({'product Name':product.name})
     
         
-    return render(request,"cart_add.html",{})
 
 
 def cart_delete(request):
