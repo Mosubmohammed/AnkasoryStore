@@ -1,3 +1,4 @@
+from pyexpat.errors import messages
 from django.shortcuts import render,get_object_or_404
 from .cart import Cart
 from Store.models import Product
@@ -32,4 +33,17 @@ def cart_delete(request):
 
 
 def cart_update(request):
-        return render(request,"cart_update.html",{})
+	cart = Cart(request)
+	if request.POST.get('action') == 'post':
+		# Get stuff
+		product_id = int(request.POST.get('product_id'))
+		product_qty = int(request.POST.get('product_qty'))
+
+		cart.update(product=product_id, quantity=product_qty)
+
+		response = JsonResponse({'qty':product_qty})
+		#return redirect('cart_summary')
+		# messages.success(request, ("Your Cart Has Been Updated..."))
+		return response
+        
+    
