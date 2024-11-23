@@ -64,6 +64,7 @@
             <br/><br/>
         <a href="{% url 'home'%}" class="btn btn-secondary">Home</a>
         <button type="button" data-index="{{product.id}}" class="btn btn-secondary update-cart">Update</button>
+        <button type="button" data-index="{{product.id}}" class="btn btn-danger delete-product">Remove</button>
         
     </center>
       </div>
@@ -71,6 +72,10 @@
   </div>
 </div>
 {%endfor%}
+<br /><br />
+<br /><br />
+
+<h3>Total: ${{totals}}</h3>
 {%else%}
 <br /><br />
 <br /><br />
@@ -78,6 +83,10 @@
 
 there is nothing.....................
 {%endif%}
+
+
+
+
 <br /><br />
 <br /><br />
 <br /><br />
@@ -87,25 +96,22 @@ there is nothing.....................
 <br /><br />
 <br /><br />
 <br /><br />
-<br /><br />
-<br /><br />
-<br /><br />
+
 
 <!-- Section-->
 
 
 <script>
-  $(document).on('click', '.update-cart', function(e){
+  $(document).on('click', '.delete-product', function(e){
     e.preventDefault();
     // grab the product id
-    var productid = $(this).data('index');
+    //var productid = $(this).data('index');
 
     $.ajax({
     type: 'POST',
-    url: '{% url 'cart_update' %}',
+    url: '{% url 'cart_delete' %}',
     data: {
       product_id: $(this).data('index'),
-      product_qty: $('#select' + productid + ' option:selected').text(),
       csrfmiddlewaretoken: '{{ csrf_token }}',
       action: 'post'
     },
@@ -121,6 +127,35 @@ there is nothing.....................
 
 
     });
+
+})
+
+$(document).on('click', '.update-cart', function(e){
+  e.preventDefault();
+  // grab the product id
+  var productid = $(this).data('index');
+
+  $.ajax({
+  type: 'POST',
+  url: '{% url 'cart_update' %}',
+  data: {
+    product_id: $(this).data('index'),
+    product_qty: $('#select' + productid + ' option:selected').text(),
+    csrfmiddlewaretoken: '{{ csrf_token }}',
+    action: 'post'
+  },
+  success: function(json){
+      //console.log(json)
+      //document.getElementById("cart_quantity").textContent = json.qty
+      location.reload();
+  },
+
+  error: function(xhr, errmsg, err){
+
+  }
+
+
+  });
 
 })
 </script>
