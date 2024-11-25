@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate,login,logout
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .forms import SignUpForm
+from .forms import SignUpForm,UpdateUserForm,ChangePasswordForm
 from django import forms
 # Create your views here.
 
@@ -73,11 +73,49 @@ def category(request, foo):
         products=Product.objects.filter(category=category)
         return render(request, 'category.html', {'products': products, 'category': category})
     except:
-        messages.error(request, 'That Category does not exist')
+        messages.success(request, 'That Category does not exist')
         
         return redirect('home')
     
 def category_summary(request):
     categories=Category.objects.all()
     return render(request, 'category_summary.html', {'categories': categories})
+
+def update_user(request):
+    if request.user.is_authenticated:
+        current_user = User.objects.get(id=request.user.id)
+        user_form=UpdateUserForm(request.POST or None,instance=current_user)
+        if user_form.is_valid():
+            user_form.save()
+            login(request,current_user)
+            messages.success(request, 'Your profile has been updated successfully!')
+            
+            return redirect('home')
+            
+        return render(request, 'update_user.html', {'user_form':user_form})
+    else:
+        messages.success(request, 'You need to be logged in to update your profile')
+        return redirect('home')
+
+def update_password(request):
+    if request.user.is_authenticated:
+        current_user = request.user
+        if request.method == 'POST':
+            form=ChangePasswordForm(current_user, request.POST)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Your password has been updated successfully,please login again....')
+                return redirect('login')
+            else:
+                for error in list(form.errors.values()):
+                    messages.error(request, error)
+                    return redirect('update_password')
+        else:    
+            form = ChangePasswordForm(current_user)
+            return render(request, 'update_password.html', {'form': form})
+    else:
+        messages.success(request, 'You need to be logged in to update your password')
+        return redirect('home')
+
+
 
