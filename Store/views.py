@@ -7,6 +7,8 @@ from django.contrib.auth.forms import UserCreationForm
 from .forms import SignUpForm,UpdateUserForm,ChangePasswordForm,UserInfoForm
 from django import forms
 from django.db.models import Q
+import json
+from Cart.cart import Cart
 # Create your views here.
 
 def home(request):
@@ -26,6 +28,21 @@ def login_user(request):
         
         if user is not None:
             login(request, user)
+            
+            #do sume sshopping sutuff
+            current_user=Profile.objects.get(user__id=request.user.id)
+            #get there saved cart from db
+            saved_cart=current_user.old_cart
+            #convert saved_cart string to dic
+            if saved_cart:
+                #convert to dic using JSON
+                converted_cart=json.loads(saved_cart)
+                #add loaded cart dic to our session
+                cart=Cart(request)
+                #loop thru the cart and add the item from the db
+                for key,value in converted_cart.items():
+                    cart.db_add(product=key,quantity=value)
+                    
             messages.success(request, 'Logged in successfully!')
             return redirect('home')
         else:
